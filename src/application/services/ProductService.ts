@@ -2,6 +2,7 @@ import { Logger } from '../../shared/Logger';
 import { ValidationError, NotFoundError } from '../../shared/exceptions';
 import { IProductDataSource } from '../../domain/interfaces/IProductDataSource';
 import { ICategoryDataSource } from '../../domain/interfaces/ICategoryDataSource';
+import { IBrandDataSource } from '../../domain/interfaces/IBrandDataSource';
 import { Product } from '../../domain/entities/Product';
 
 // Función utilitaria para normalizar colores
@@ -23,6 +24,7 @@ export interface CreateProductRequest {
   originalPrice?: number;
   images: string[];
   categoryId: number;
+  brandId?: number;
   status?: 'available' | 'out-of-stock' | 'coming-soon';
   colors?: string[];
   isShowcase?: boolean;
@@ -36,6 +38,7 @@ export interface UpdateProductRequest {
   originalPrice?: number;
   images?: string[];
   categoryId?: number;
+  brandId?: number;
   status?: 'available' | 'out-of-stock' | 'coming-soon';
   colors?: string[];
   isShowcase?: boolean;
@@ -46,15 +49,18 @@ export class ProductService {
   private logger: Logger;
   private productDataSource: IProductDataSource;
   private categoryDataSource: ICategoryDataSource;
+  private brandDataSource: IBrandDataSource;
 
   constructor(
     logger: Logger,
     productDataSource: IProductDataSource,
-    categoryDataSource: ICategoryDataSource
+    categoryDataSource: ICategoryDataSource,
+    brandDataSource: IBrandDataSource
   ) {
     this.logger = logger;
     this.productDataSource = productDataSource;
     this.categoryDataSource = categoryDataSource;
+    this.brandDataSource = brandDataSource;
   }
 
   async getAllProducts(query?: unknown): Promise<Product[]> {
@@ -183,11 +189,23 @@ export class ProductService {
         originalPrice: createRequest.originalPrice,
         images: createRequest.images,
         categoryId: createRequest.categoryId,
+        brandId: createRequest.brandId,
         status: createRequest.status || 'available',
         colors: createRequest.colors ? normalizeColors(createRequest.colors) : undefined,
         isShowcase: createRequest.isShowcase || false,
         showcaseImage: createRequest.showcaseImage,
       };
+
+      // Verificar que la marca existe si se proporciona brandId
+      if (createRequest.brandId) {
+        const brand = await this.brandDataSource.getById(createRequest.brandId);
+        if (!brand) {
+          this.logger.logWarning(
+            `Product creation failed: brand not found with id ${createRequest.brandId}`
+          );
+          throw new ValidationError('Brand not found');
+        }
+      }
 
       const newProduct = await this.productDataSource.create(productData);
       this.logger.logInfo(
@@ -248,6 +266,17 @@ export class ProductService {
             `Product update failed: category not found with id ${updateRequest.categoryId}`
           );
           throw new ValidationError('Category not found');
+        }
+      }
+
+      // Si se está actualizando la marca, verificar que existe
+      if (updateRequest.brandId) {
+        const brand = await this.brandDataSource.getById(updateRequest.brandId);
+        if (!brand) {
+          this.logger.logWarning(
+            `Product update failed: brand not found with id ${updateRequest.brandId}`
+          );
+          throw new ValidationError('Brand not found');
         }
       }
 

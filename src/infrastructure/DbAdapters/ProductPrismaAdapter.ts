@@ -23,6 +23,9 @@ export class ProductPrismaAdapter implements IProductDataSource {
         ...(typeof queryObj.categoryId === 'string' && {
           categoryId: parseInt(queryObj.categoryId),
         }),
+        ...(typeof queryObj.brandId === 'string' && {
+          brandId: parseInt(queryObj.brandId),
+        }),
         ...(typeof queryObj.status === 'string' && {
           status: queryObj.status,
         }),
@@ -49,6 +52,14 @@ export class ProductPrismaAdapter implements IProductDataSource {
             description: true,
           },
         },
+        brand: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            logoUrl: true,
+          },
+        },
       },
     });
 
@@ -64,6 +75,14 @@ export class ProductPrismaAdapter implements IProductDataSource {
             id: true,
             name: true,
             description: true,
+          },
+        },
+        brand: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            logoUrl: true,
           },
         },
       },
@@ -84,6 +103,14 @@ export class ProductPrismaAdapter implements IProductDataSource {
             description: true,
           },
         },
+        brand: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            logoUrl: true,
+          },
+        },
       },
     });
 
@@ -102,6 +129,14 @@ export class ProductPrismaAdapter implements IProductDataSource {
             description: true,
           },
         },
+        brand: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            logoUrl: true,
+          },
+        },
       },
     });
 
@@ -117,6 +152,7 @@ export class ProductPrismaAdapter implements IProductDataSource {
         originalPrice: product.originalPrice,
         images: JSON.stringify(product.images),
         categoryId: product.categoryId,
+        brandId: product.brandId,
         status: product.status,
         colors: product.colors ? JSON.stringify(product.colors) : null,
         isShowcase: product.isShowcase,
@@ -128,6 +164,14 @@ export class ProductPrismaAdapter implements IProductDataSource {
             id: true,
             name: true,
             description: true,
+          },
+        },
+        brand: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            logoUrl: true,
           },
         },
       },
@@ -147,6 +191,7 @@ export class ProductPrismaAdapter implements IProductDataSource {
           ...(product.originalPrice !== undefined && { originalPrice: product.originalPrice }),
           ...(product.images && { images: JSON.stringify(product.images) }),
           ...(product.categoryId && { categoryId: product.categoryId }),
+          ...(product.brandId !== undefined && { brandId: product.brandId }),
           ...(product.status && { status: product.status }),
           ...(product.colors !== undefined && {
             colors: product.colors ? JSON.stringify(product.colors) : null,
@@ -160,6 +205,14 @@ export class ProductPrismaAdapter implements IProductDataSource {
               id: true,
               name: true,
               description: true,
+            },
+          },
+          brand: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              logoUrl: true,
             },
           },
         },
@@ -203,6 +256,7 @@ export class ProductPrismaAdapter implements IProductDataSource {
         : undefined,
       images: JSON.parse(prismaProduct.images),
       categoryId: prismaProduct.categoryId,
+      brandId: prismaProduct.brandId,
       status: prismaProduct.status as 'available' | 'out-of-stock' | 'coming-soon',
       colors: prismaProduct.colors ? JSON.parse(prismaProduct.colors) : undefined,
       isShowcase: prismaProduct.isShowcase,
@@ -214,6 +268,14 @@ export class ProductPrismaAdapter implements IProductDataSource {
             id: prismaProduct.category.id,
             name: prismaProduct.category.name,
             description: prismaProduct.category.description,
+          }
+        : undefined,
+      brand: prismaProduct.brand
+        ? {
+            id: prismaProduct.brand.id,
+            name: prismaProduct.brand.name,
+            description: prismaProduct.brand.description,
+            logoUrl: prismaProduct.brand.logoUrl,
           }
         : undefined,
     };

@@ -18,6 +18,12 @@
 # - Integración exclusiva con Wompi (sin MercadoPago)
 # - Normalización con tabla OrderDetail para histórico de precios
 # - Respuesta incluye: purchaseId, paymentUrl (Wompi), totalAmount, items
+#
+# 🏷️ BRAND CRUD (funcBrands):
+# - CRUD completo en /api/v1/brands/{id?}
+# - GET público, POST/PUT/DELETE requieren JWT
+# - Campos: name (requerido, unique), description (opcional), logoUrl (opcional)
+# - Productos ahora soportan brandId opcional para asociar marca
 
 ###
 # PUBLIC ENDPOINTS (No authentication required)
@@ -255,3 +261,57 @@ Content-Type: application/json
 
 # Note: funcCreateUser and funcCategories require authentication
 # Please use api-tests-with-auth.http for user creation and categories tests
+
+###
+# BRAND CRUD - /api/v1/brands/{id?}
+###
+
+### Obtener todas las marcas
+GET http://localhost:7071/api/v1/brands
+
+### Obtener marca por ID
+GET http://localhost:7071/api/v1/brands/1
+
+### Crear marca
+POST http://localhost:7071/api/v1/brands
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Michelin",
+  "description": "Fabricante francés de neumáticos"
+}
+
+### Actualizar marca
+PUT http://localhost:7071/api/v1/brands/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Michelin updated"
+}
+
+### Eliminar marca
+DELETE http://localhost:7071/api/v1/brands/1
+Authorization: Bearer {{token}}
+
+###
+# PRODUCTOS CON brandId
+###
+
+### Crear producto con brandId
+POST http://localhost:7071/api/v1/products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Llanta Michelin 205/55R16",
+  "description": "Llanta radial Michelin",
+  "price": 350000,
+  "images": ["https://example.com/llanta1.jpg"],
+  "categoryId": 1,
+  "brandId": 1
+}
+
+### Obtener productos filtrados por brandId
+GET http://localhost:7071/api/v1/products?brandId=1

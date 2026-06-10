@@ -6,6 +6,7 @@ export type Product = {
   originalPrice?: number;
   images: string[]; // Array de URLs
   categoryId: number;
+  brandId?: number;
   status: 'available' | 'out-of-stock' | 'coming-soon';
   colors?: string[]; // Array de colores
   isShowcase: boolean;
@@ -18,5 +19,13 @@ export type Product = {
     id: number;
     name: string;
     description?: string;
+  };
+
+  // Relación opcional para cuando se incluya la marca
+  brand?: {
+    id: number;
+    name: string;
+    description?: string;
+    logoUrl?: string;
   };
 };

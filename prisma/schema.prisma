@@ -79,6 +79,20 @@ model Category {
   @@map("categories")
 }
 
+model Brand {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  logoUrl     String?   @map("logo_url")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relación con productos
+  products    Product[]
+
+  @@map("brands")
+}
+
 model Product {
   id             Int      @id @default(autoincrement())
   name           String
@@ -87,6 +101,7 @@ model Product {
   originalPrice  Decimal? @db.Decimal(10, 2) @map("original_price")
   images         String   // JSON array de URLs: ["url1", "url2", "url3"]
   categoryId     Int      @map("category_id")
+  brandId        Int?     @map("brand_id")
   status         String   @default("available") // available, out-of-stock, coming-soon
   colors         String?  // JSON array de colores: ["Titanio Natural", "Titanio Azul"]
   isShowcase     Boolean  @default(false) @map("is_showcase")
@@ -96,8 +111,10 @@ model Product {
 
   // Relaciones
   category     Category      @relation(fields: [categoryId], references: [id])
+  brand        Brand?        @relation(fields: [brandId], references: [id])
 
   @@index([categoryId], map: "idx_products_category")
+  @@index([brandId], map: "idx_products_brand")
   @@index([isShowcase], map: "idx_products_showcase")
   @@map("products")
 }
